@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول / إنشاء حساب</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            position: relative;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        /* العناوين */
+        .form-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .form-header h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        /* مجموعات الإدخال */
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+            outline: none;
+            text-align: right;
+        }
+
+        .input-group input:focus {
+            border-color: #007bff;
+        }
+
+        /* الأزرار */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        /* روابط التنقل والتبديل */
+        .switch-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .switch-text a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .switch-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* إخفاء الواجهة غير النشطة بسلاسة */
+        .form-box {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .form-box.active {
+            display: block;
+        }
+
+        /* حركة ظهور ناعمة */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="loginForm" class="form-box active">
+        <div class="form-header">
+            <h2>تسجيل الدخول</h2>
+            <p style="color: #777; font-size: 14px;">مرحباً بك مجدداً! يرجى إدخال بياناتك.</p>
+        </div>
+        
+        <form onsubmit="handleLogin(event)">
+            <div class="input-group">
+                <label for="loginEmail">البريد الإلكتروني</label>
+                <input type="email" id="loginEmail" required placeholder="example@mail.com">
+            </div>
+            
+            <div class="input-group">
+                <label for="loginPassword">كلمة المرور</label>
+                <input type="password" id="loginPassword" required placeholder="••••••••">
+            </div>
+            
+            <button type="submit" class="btn">دخول</button>
+        </form>
+        
+        <div class="switch-text">
+            ليس لديك حساب؟ <a onclick="toggleForms('signup')">إنشاء حساب جديد</a>
+        </div>
+    </div>
+
+    <div id="signupForm" class="form-box">
+        <div class="form-header">
+            <h2>إنشاء حساب جديد</h2>
+            <p style="color: #777; font-size: 14px;">ابدأ معنا اليوم واحصل على خدماتنا.</p>
+        </div>
+        
+        <form onsubmit="handleSignup(event)">
+            <div class="input-group">
+                <label for="registerName">الاسم الكامل</label>
+                <input type="text" id="registerName" required placeholder="أدخل اسمك الثلاثي">
+            </div>
+
+            <div class="input-group">
+                <label for="registerEmail">البريد الإلكتروني</label>
+                <input type="email" id="registerEmail" required placeholder="example@mail.com">
+            </div>
+            
+            <div class="input-group">
+                <label for="registerPassword">كلمة المرور</label>
+                <input type="password" id="registerPassword" required placeholder="••••••••">
+            </div>
+            
+            <button type="submit" class="btn" style="background: #28a745;">تسجيل الحساب</button>
+        </form>
+        
+        <div class="switch-text">
+            لديك حساب بالفعل؟ <a onclick="toggleForms('login')">تسجيل الدخول</a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // الدالة المسؤولة عن التبديل بين الواجهتين
+    function toggleForms(formType) {
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+
+        if (formType === 'signup') {
+            loginForm.classList.remove('active');
+            signupForm.classList.add('active');
+        } else {
+            signupForm.classList.remove('active');
+            loginForm.classList.add('active');
+        }
+    }
+
+    // معالجة إرسال نموذج تسجيل الدخول
+    function handleLogin(event) {
+        event.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const pass = document.getElementById('loginPassword').value;
+        
+        // هنا يمكنك ربط الكود بالـ Backend الخاص بك (مثل Firebase Auth)
+        alert('جاري تسجيل الدخول للحساب: ' + email);
+    }
+
+    // معالجة إرسال نموذج إنشاء الحساب
+    function handleSignup(event) {
+        event.preventDefault();
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const pass = document.getElementById('registerPassword').value;
+        
+        // هنا يمكنك ربط الكود بالـ Backend الخاص بك (مثل Firebase Auth)
+        alert('تم إرسال بيانات التسجيل للاسم: ' + name);
+    }
+</script>
+
+</body>
+</html>
