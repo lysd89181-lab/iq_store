@@ -128,7 +128,7 @@
         .modal-overlay.hidden { display: none; }
         .modal-card {
             background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px;
-            width: 100%; max-width: 440px; padding: 20px; max-height: 90vh; overflow-y: auto;
+            width: 100%; max-width: 440px; padding: 20px; max-height: 90vh; overflow-y: auto; position: relative;
         }
         .close-btn {
             position: absolute; top: 14px; left: 14px; background: var(--bg-input); border: none;
@@ -138,14 +138,21 @@
         .hidden { display: none !important; }
         .loading, .no-data { text-align: center; padding: 30px; font-size: 12px; color: var(--text-muted); }
         .spinner { width: 28px; height: 28px; animation: spin 0.8s linear infinite; stroke: var(--cyan); }
-        @keyframes spin { to { transform: rotate(300deg); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .sidebar-mobile-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(6,8,20,0.8); backdrop-filter: blur(4px); z-index: 85; display: none;
         }
         .sidebar-mobile-overlay.show { display: block; }
+        
+        .bank-row-compact {
+            background: var(--bg-main); padding: 12px; border-radius: 10px; margin-bottom: 12px;
+            font-size: 12px; display: flex; flex-direction: column; gap: 8px; text-align: right;
+        }
+        .bank-row-compact div { display: flex; justify-content: space-between; align-items: center; }
+
         @media (max-width: 768px) {
-            .app-sidebar-navigation { position: fixed; top: 0; right: -280px; height: 100vh; z-index: 95; }
+            .app-sidebar-navigation { position: fixed; top: 0; right: -280px; height: 100vh; z-index: 95; transition: right 0.3s ease; }
             .app-sidebar-navigation.show { right: 0; }
             .categories-grid, .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
         }
@@ -251,6 +258,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAsDZDLbzB0Vfqgo8SenbE4DTxjc7m_xqA",
@@ -276,6 +284,11 @@
             if (!auth.currentUser) { window.location.href = 'long.html'; return; }
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(tab + 'Page')?.classList.add('active');
+            
+            // تحديث الكلاس النشط في القائمة الجانبية
+            document.querySelectorAll('.sidebar-item-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
             if (tab === 'orders') loadMyOrders();
         }
 
@@ -298,10 +311,11 @@
             updateAllBalances();
         }
 
+        // تم التعديل ليقرأ الصور من المستودع الصغير iq_store مباشرة
         function getImageUrl(img) {
             if (!img) return '';
             if (img.startsWith('http')) return img;
-            return "https://raw.githubusercontent.com/lysd89181-lab/Media_Plus/main/" + img;
+            return "https://raw.githubusercontent.com/lysd89181-lab/iq_store/main/" + img;
         }
 
         function generateInvoiceNumber() { return 'iQ-' + Math.floor(10000 + Math.random() * 90000); }
@@ -315,7 +329,7 @@
             const amount = parseFloat(val2);
             try {
                 await db.collection("deposits").add({
-                    userId: auth.currentUser.uid, userName: userData?.username || '', phone: val1,
+                    userId: auth.currentUser.uid, userName: userData?.username || userData?.name || '', phone: val1,
                     amount: amount, provider: provider, status: 'pending',
                     invoiceNumber: generateInvoiceNumber(), createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -336,7 +350,7 @@
             const grid = document.getElementById('myCatsGrid');
             if (cachedCategories.length === 0) { grid.innerHTML = '<div class="no-data">لا توجد أقسام</div>'; return; }
             grid.innerHTML = cachedCategories.map(c => `
-                <div class="cat-card-clickable" onclick="fetchProducts('${c.id}','${c.name}')">
+                <div class="cat-card-clickable" onclick="fetchProducts('${c.id}','${c.name.replace(/'/g,"\\'")}')">
                     <img src="${getImageUrl(c.image)}" alt="${c.name}" onerror="this.src='https://via.placeholder.com/300?text=iQ'">
                     <h4>${c.name}</h4>
                 </div>
@@ -353,9 +367,12 @@
             const prods = [];
             snap.forEach(doc => { if (doc.data().active !== false) prods.push({ id: doc.id, ...doc.data() }); });
             cachedProducts[catId] = prods;
+            
+            if(prods.length === 0) { grid.innerHTML = '<div class="no-data">لا توجد منتجات في هذا القسم</div>'; return; }
+            
             grid.innerHTML = prods.map(p => `
                 <div class="product-card-node">
-                    <img src="${getImageUrl(p.image)}" alt="${p.name}">
+                    <img src="${getImageUrl(p.image)}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300?text=iQ'">
                     <div class="price-new-lbl">${formatPrice(p.price)} <small class="currency-label">د.ل</small></div>
                     <div style="font-size:11px;color:#fff;margin:4px 0;">${p.name}</div>
                     <button class="buy-action-btn" onclick="openModal('${p.id}','${p.name.replace(/'/g,"\\'")}',${p.price})">شراء</button>
@@ -371,7 +388,6 @@
         function openModal(id, name, price) {
             currentProduct = { id, name, price };
             document.getElementById('dName').innerText = name;
-            document.getElementById('dImg').src = '';
             document.getElementById('targetInput').value = '';
             document.getElementById('contactPhone').value = '';
             document.getElementById('detailModal').classList.remove('hidden');
@@ -401,13 +417,15 @@
         async function loadMyOrders() {
             const list = document.getElementById('myOrdersList');
             list.innerHTML = '<div class="loading">جاري التحميل...</div>';
-            const snap = await db.collection("orders").where("userId", "==", auth.currentUser.uid).orderBy("createdAt", "desc").get();
+            const snap = await db.collection("orders").where("userId", "==", auth.currentUser.uid).get();
             if (snap.empty) { list.innerHTML = '<div class="no-data">لا توجد طلبات</div>'; return; }
             list.innerHTML = '';
             snap.forEach(doc => {
                 const d = doc.data();
-                list.innerHTML += `<div class="card-white" style="margin-bottom:8px;">
-                    <b>${d.productName}</b> - ${formatPrice(d.price)} د.ل | ${d.status || 'pending'}
+                list.innerHTML += `<div class="card-white" style="margin-bottom:8px; text-align:right;">
+                    <b>${d.productName}</b> <br>
+                    <span style="font-size:12px; color:var(--cyan)">السعر: ${formatPrice(d.price)} د.ل</span> | 
+                    <span style="font-size:12px; color:var(--text-muted)">الحالة: ${d.status || 'pending'}</span>
                 </div>`;
             });
         }
@@ -416,23 +434,27 @@
             document.getElementById('topBalance').innerText = formatPrice(userBalanceLYD);
             document.getElementById('walletBalance').innerText = formatPrice(userBalanceLYD);
             if (userData) {
-                document.getElementById('sidebarName').innerText = userData.username || userData.name || '';
+                document.getElementById('sidebarName').innerText = userData.username || userData.name || 'مستخدم iQ';
                 document.getElementById('sidebarEmail').innerText = userData.email || '';
             }
         }
 
         function logout() { auth.signOut().then(() => { window.location.href = 'long.html'; }); }
 
+        // فحص حالة المستخدم الحقيقية عبر Firebase والتوجيه لـ long.html في حال عدم الدخول
         auth.onAuthStateChanged(user => {
-            if (!user) { window.location.href = 'long.html'; return; }
-            document.getElementById('sidebarUID').innerText = 'UID: ' + user.uid;
-            db.collection("users").doc(user.uid).onSnapshot(doc => {
-                if (doc.exists) { userData = doc.data(); userBalanceLYD = userData.balance || 0; updateAllBalances(); }
-            });
-            setTimeout(() => { fetchCategories(); }, 500);
+            if (!user) { 
+                window.location.href = 'long.html'; 
+            } else {
+                document.getElementById('sidebarUID').innerText = 'UID: ' + user.uid;
+                db.collection("users").doc(user.uid).onSnapshot(doc => {
+                    if (doc.exists) { userData = doc.data(); userBalanceLYD = userData.balance || 0; updateAllBalances(); }
+                });
+                fetchCategories();
+            }
         });
 
-        // Build sidebar menu
+        // بناء القائمة الجانبية بشكل ديناميكي
         const menuItems = [
             { id: 'home', title: 'المتجر الرئيسي', icon: '🏠' },
             { id: 'wallet', title: 'محفظتي المالية', icon: '💰' },
@@ -456,8 +478,8 @@
         `;
 
         document.getElementById('libyanaNumbers').innerHTML = `
-            <div><span>ليبيانا: 0920414760</span> <button class="buy-action-btn" style="width:auto;padding:4px 8px;" onclick="copyText('0920414760')">نسخ</button></div>
-            <div><span>مدار: 0912377291</span> <button class="buy-action-btn" style="width:auto;padding:4px 8px;" onclick="copyText('0912377291')">نسخ</button></div>
+            <div><span>ليبيانا: 0920414760</span> <button class="buy-action-btn" style="width:auto;padding:4px 8px;margin-top:0;" onclick="copyText('0920414760')">نسخ</button></div>
+            <div style="margin-top:8px;"><span>مدار: 0912377291</span> <button class="buy-action-btn" style="width:auto;padding:4px 8px;margin-top:0;" onclick="copyText('0912377291')">نسخ</button></div>
         `;
     </script>
 </body>
