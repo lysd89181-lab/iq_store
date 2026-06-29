@@ -3,161 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول / إنشاء حساب</title>
+    <title>iQ Store - تسجيل الدخول</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body {
-            background: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            padding: 20px;
+            background: linear-gradient(135deg, #060814, #0d1127);
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;
         }
-
         .container {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 450px;
-            overflow: hidden;
-            position: relative;
-            padding: 30px;
-            transition: all 0.3s ease;
+            background: #131936; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            width: 100%; max-width: 400px; padding: 30px; border: 1px solid rgba(0,242,254,0.2);
         }
-
-        /* العناوين */
-        .form-header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .form-header h2 {
-            color: #333;
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        /* مجموعات الإدخال */
-        .input-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-size: 14px;
-        }
-
+        .form-header { text-align: center; margin-bottom: 25px; }
+        .form-header h2 { color: #00f2fe; font-size: 22px; margin-bottom: 6px; }
+        .form-header p { color: #8e9bb8; font-size: 13px; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; margin-bottom: 6px; color: #cbd5e1; font-size: 13px; }
         .input-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.2s;
-            outline: none;
-            text-align: right;
+            width: 100%; padding: 11px 14px; background: #0a0f23; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: #fff; font-size: 14px; outline: none; text-align: right;
         }
-
-        .input-group input:focus {
-            border-color: #007bff;
-        }
-
-        /* الأزرار */
+        .input-group input:focus { border-color: #00f2fe; }
         .btn {
-            width: 100%;
-            padding: 12px;
-            background: #007bff;
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 10px;
+            width: 100%; padding: 12px; background: linear-gradient(135deg, #9d4edd, #7b2cbf);
+            border: none; border-radius: 8px; color: #fff; font-size: 15px; font-weight: bold;
+            cursor: pointer; margin-top: 8px;
         }
-
-        .btn:hover {
-            background: #0056b3;
-        }
-
-        /* روابط التنقل والتبديل */
-        .switch-text {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .switch-text a {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .switch-text a:hover {
-            text-decoration: underline;
-        }
-
-        /* إخفاء الواجهة غير النشطة بسلاسة */
-        .form-box {
-            display: none;
-            animation: fadeIn 0.4s ease-in-out;
-        }
-
-        .form-box.active {
-            display: block;
-        }
-
-        /* حركة ظهور ناعمة */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        .btn.green { background: linear-gradient(135deg, #10b981, #059669); }
+        .switch-text { text-align: center; margin-top: 18px; font-size: 13px; color: #8e9bb8; }
+        .switch-text a { color: #00f2fe; text-decoration: none; font-weight: bold; cursor: pointer; }
+        .form-box { display: none; }
+        .form-box.active { display: block; }
+        .msg { text-align: center; margin-top: 10px; font-size: 12px; display: none; }
+        .msg.show { display: block; }
+        .msg.error { color: #ef4444; }
+        .msg.success { color: #10b981; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    
     <div id="loginForm" class="form-box active">
         <div class="form-header">
-            <h2>تسجيل الدخول</h2>
-            <p style="color: #777; font-size: 14px;">مرحباً بك مجدداً! يرجى إدخال بياناتك.</p>
+            <h2>🔐 تسجيل الدخول</h2>
+            <p>مرحباً بك في iQ Store</p>
         </div>
-        
         <form onsubmit="handleLogin(event)">
             <div class="input-group">
-                <label for="loginEmail">البريد الإلكتروني</label>
+                <label>البريد الإلكتروني</label>
                 <input type="email" id="loginEmail" required placeholder="example@mail.com">
             </div>
-            
             <div class="input-group">
-                <label for="loginPassword">كلمة المرور</label>
+                <label>كلمة المرور</label>
                 <input type="password" id="loginPassword" required placeholder="••••••••">
             </div>
-            
-            <button type="submit" class="btn">دخول</button>
+            <button type="submit" class="btn">🚀 دخول</button>
         </form>
-        
+        <p class="msg" id="loginMsg"></p>
         <div class="switch-text">
             ليس لديك حساب؟ <a onclick="toggleForms('signup')">إنشاء حساب جديد</a>
         </div>
@@ -165,72 +66,92 @@
 
     <div id="signupForm" class="form-box">
         <div class="form-header">
-            <h2>إنشاء حساب جديد</h2>
-            <p style="color: #777; font-size: 14px;">ابدأ معنا اليوم واحصل على خدماتنا.</p>
+            <h2>✨ إنشاء حساب</h2>
+            <p>ابدأ اليوم مع iQ Store</p>
         </div>
-        
         <form onsubmit="handleSignup(event)">
             <div class="input-group">
-                <label for="registerName">الاسم الكامل</label>
-                <input type="text" id="registerName" required placeholder="أدخل اسمك الثلاثي">
+                <label>الاسم الكامل</label>
+                <input type="text" id="registerName" required placeholder="أدخل اسمك">
             </div>
-
             <div class="input-group">
-                <label for="registerEmail">البريد الإلكتروني</label>
+                <label>البريد الإلكتروني</label>
                 <input type="email" id="registerEmail" required placeholder="example@mail.com">
             </div>
-            
             <div class="input-group">
-                <label for="registerPassword">كلمة المرور</label>
+                <label>كلمة المرور</label>
                 <input type="password" id="registerPassword" required placeholder="••••••••">
             </div>
-            
-            <button type="submit" class="btn" style="background: #28a745;">تسجيل الحساب</button>
+            <button type="submit" class="btn green">✅ تسجيل</button>
         </form>
-        
+        <p class="msg" id="signupMsg"></p>
         <div class="switch-text">
-            لديك حساب بالفعل؟ <a onclick="toggleForms('login')">تسجيل الدخول</a>
+            لديك حساب؟ <a onclick="toggleForms('login')">تسجيل الدخول</a>
         </div>
     </div>
-
 </div>
 
-<script>
-    // الدالة المسؤولة عن التبديل بين الواجهتين
-    function toggleForms(formType) {
-        const loginForm = document.getElementById('loginForm');
-        const signupForm = document.getElementById('signupForm');
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-        if (formType === 'signup') {
-            loginForm.classList.remove('active');
-            signupForm.classList.add('active');
-        } else {
-            signupForm.classList.remove('active');
-            loginForm.classList.add('active');
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAsDZDLbzB0Vfqgo8SenbE4DTxjc7m_xqA",
+        authDomain: "iq-store-f6195.firebaseapp.com",
+        projectId: "iq-store-f6195",
+        storageBucket: "iq-store-f6195.firebasestorage.app",
+        messagingSenderId: "971567926936",
+        appId: "1:971567926936:web:f85205b7d1ea210d3c0aed"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    function toggleForms(form) {
+        document.getElementById('loginForm').classList.toggle('active', form === 'login');
+        document.getElementById('signupForm').classList.toggle('active', form === 'signup');
+    }
+
+    function showMsg(id, text, isError) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        el.className = 'msg show ' + (isError ? 'error' : 'success');
+    }
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value.trim();
+        const pass = document.getElementById('loginPassword').value;
+        try {
+            await auth.signInWithEmailAndPassword(email, pass);
+            window.location.href = 'index.html';
+        } catch (err) {
+            let msg = 'حدث خطأ';
+            if (err.message.includes('invalid')) msg = 'كلمة مرور خاطئة';
+            if (err.message.includes('no user')) msg = 'الحساب غير موجود';
+            showMsg('loginMsg', '❌ ' + msg, true);
         }
     }
 
-    // معالجة إرسال نموذج تسجيل الدخول
-    function handleLogin(event) {
-        event.preventDefault();
-        const email = document.getElementById('loginEmail').value;
-        const pass = document.getElementById('loginPassword').value;
-        
-        // هنا يمكنك ربط الكود بالـ Backend الخاص بك (مثل Firebase Auth)
-        alert('جاري تسجيل الدخول للحساب: ' + email);
-    }
-
-    // معالجة إرسال نموذج إنشاء الحساب
-    function handleSignup(event) {
-        event.preventDefault();
-        const name = document.getElementById('registerName').value;
-        const email = document.getElementById('registerEmail').value;
+    async function handleSignup(e) {
+        e.preventDefault();
+        const name = document.getElementById('registerName').value.trim();
+        const email = document.getElementById('registerEmail').value.trim();
         const pass = document.getElementById('registerPassword').value;
-        
-        // هنا يمكنك ربط الكود بالـ Backend الخاص بك (مثل Firebase Auth)
-        alert('تم إرسال بيانات التسجيل للاسم: ' + name);
+        if (pass.length < 6) return showMsg('signupMsg', '❌ كلمة المرور 6 أحرف على الأقل', true);
+        try {
+            const cred = await auth.createUserWithEmailAndPassword(email, pass);
+            await db.collection("users").doc(cred.user.uid).set({
+                uid: cred.user.uid, name: name, username: name, email: email, balance: 0,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            window.location.href = 'index.html';
+        } catch (err) {
+            showMsg('signupMsg', '❌ ' + (err.code === 'auth/email-already-in-use' ? 'البريد مستخدم مسبقاً' : 'حدث خطأ'), true);
+        }
     }
 </script>
-
 </body>
 </html>
